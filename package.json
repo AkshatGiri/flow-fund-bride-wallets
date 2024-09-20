@@ -4,7 +4,8 @@
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {
-    "dev": "tsx index.ts"
+    "dev": "tsx index.ts",
+    "start": "tsx index.ts"
   },
   "keywords": [],
   "author": "",
