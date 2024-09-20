@@ -31,7 +31,7 @@ const contract = new ethers.Contract(
 );
 
 // on transfer event handler
-async function onTransfer(from: string, to: string, amount: bigint) {
+async function onTransfer(from: string, to: string, amount: bigint, event: any) {
   try {
     // ignore the transfer if it's not a post mint transfer.
     // i.e coming from the zero addresss
@@ -59,7 +59,7 @@ async function onTransfer(from: string, to: string, amount: bigint) {
     console.table({
       from,
       to,
-      amount: ethers.formatEther(amount),
+      eventTxHash: event?.transactionHash,
       txHash: tx.hash,
       explorer: `https://evm.flowscan.io/tx/${tx.hash}`,
     });
