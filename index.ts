@@ -59,7 +59,7 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
     console.table({
       from,
       to,
-      eventTxHash: event?.transactionHash,
+      eventTxHash: event?.log?.transactionHash,
       txHash: tx.hash,
       explorer: `https://evm.flowscan.io/tx/${tx.hash}`,
     });
@@ -87,6 +87,7 @@ const stopListening = () => {
 // catch all unhandled errors and log them
 process.on("unhandledRejection", (error) => {
   console.error("Unhandled error:", error);
+  process.exit(1);
 });
 
 // Start listening
