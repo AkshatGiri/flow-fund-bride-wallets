@@ -1,7 +1,8 @@
 import { ethers } from "ethers";
 import usdcAbi from "./usdcAbi.json";
 import "dotenv/config";
-import { loadEnvVar } from "./utils";
+import { loadEnvVar } from "./utils/utils";
+import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
 
 const WS_RPC_URL = loadEnvVar("WS_RPC_URL");
 const FUND_WALLET_PRIVATE_KEY = loadEnvVar("FUND_WALLET_PRIVATE_KEY");
@@ -18,7 +19,13 @@ const usdcContract = {
 
 const FUND_AMOUNT = ethers.parseEther("0.05");
 
-const provider = new ethers.WebSocketProvider(WS_RPC_URL);
+const providers = await createResilientProviders([WS_RPC_URL], usdcContract.chainId)
+
+if (providers.length === 0) {
+  throw new Error("Could not establish a resilient websocket provider connection.")
+}
+
+const provider = providers[0];
 
 // Setup our wallet
 const fundWallet = new ethers.Wallet(FUND_WALLET_PRIVATE_KEY, provider);
@@ -83,13 +90,6 @@ const stopListening = () => {
   console.log("Stopped listening for Transfer events.");
   contract.removeAllListeners("Transfer");
 };
-
-
-// // Every 60 minutes, let's make sure the connection is still active
-setInterval(async () => {
-  const currentBlock = await provider.getBlockNumber();
-  console.log("Current block:", currentBlock);
-}, 60 * 1000)
 
 // catch all unhandled errors and log them
 process.on("unhandledRejection", (error) => {
