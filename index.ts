@@ -89,7 +89,7 @@ const stopListening = () => {
 setInterval(async () => {
   const currentBlock = await provider.getBlockNumber();
   console.log("Current block:", currentBlock);
-}, 60 * 60 * 1000)
+}, 60 * 1000)
 
 // catch all unhandled errors and log them
 process.on("unhandledRejection", (error) => {
