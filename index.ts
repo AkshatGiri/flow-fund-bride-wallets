@@ -84,6 +84,13 @@ const stopListening = () => {
   contract.removeAllListeners("Transfer");
 };
 
+
+// // Every 60 minutes, let's make sure the connection is still active
+setInterval(async () => {
+  const currentBlock = await provider.getBlockNumber();
+  console.log("Current block:", currentBlock);
+}, 60 * 60 * 1000)
+
 // catch all unhandled errors and log them
 process.on("unhandledRejection", (error) => {
   console.error("Unhandled error:", error);
