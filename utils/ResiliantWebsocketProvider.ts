@@ -10,7 +10,7 @@ const MAX_RECONNECTION_ATTEMPTS = 5;
 const RECONNECTION_DELAY = 5000; // 5 seconds
 
 const debug = (message) => {
-  console.debug(new Date().toISOString(), message);
+  // console.debug(new Date().toISOString(), message);
 };
 
 export class ResilientWebsocketProvider {
