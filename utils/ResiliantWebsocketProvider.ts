@@ -48,14 +48,14 @@ export class ResilientWebsocketProvider {
             const wsp = new WebSocketProvider(() => this.ws, this.network);
 
             while (this.ws?.readyState !== WebSocket.OPEN) {
-              debug("Waiting for websocket to be open");
+              console.log("Waiting for websocket to be open");
               await this.sleep(1000);
             }
 
             wsp._start();
 
             while (!wsp.ready) {
-              debug("Waiting for websocket provider to be ready");
+              console.log("Waiting for websocket provider to be ready");
               await this.sleep(1000);
             }
 
@@ -76,7 +76,7 @@ export class ResilientWebsocketProvider {
           this.cleanupConnection();
           if (!this.terminate) {
             this.reconnectionAttempts++;
-            debug(`Attempting to reconnect... (Attempt ${this.reconnectionAttempts})`);
+            console.log(`Attempting to reconnect... (Attempt ${this.reconnectionAttempts})`);
             setTimeout(startConnection, RECONNECTION_DELAY);
           }
         });
@@ -117,11 +117,11 @@ export class ResilientWebsocketProvider {
   }
 
   async resubscribe() {
-    debug("Resubscribing to topics...");
+    console.log("Resubscribing to topics...");
     for (const subscription of this.subscriptions) {
       try {
         await this.provider.subscribe(subscription.type, subscription.filter, subscription.listener);
-        debug(`Resubscribed to ${subscription.type}`);
+        console.log(`Resubscribed to ${subscription.type}`);
       } catch (error) {
         console.error(`Failed to resubscribe to ${subscription.type}:`, error);
       }
