@@ -120,7 +120,7 @@ export class ResilientWebsocketProvider {
     console.log("Resubscribing to topics...");
     for (const subscription of this.subscriptions) {
       try {
-        await this.provider.subscribe(subscription.type, subscription.filter, subscription.listener);
+        await this.provider._subscribe(subscription.type, subscription.filter, subscription.listener);
         console.log(`Resubscribed to ${subscription.type}`);
       } catch (error) {
         console.error(`Failed to resubscribe to ${subscription.type}:`, error);
