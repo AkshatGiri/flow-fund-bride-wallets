@@ -79,6 +79,9 @@ export class ResilientWebsocketProvider {
             console.log(`Attempting to reconnect... (Attempt ${this.reconnectionAttempts})`);
             setTimeout(startConnection, RECONNECTION_DELAY);
           }
+
+          console.warn("Shutting down and restarting script to reconnect and resubscribe to topics...")
+          process.exit(1)
         });
 
         this.ws.on("error", (error) => {
@@ -117,8 +120,6 @@ export class ResilientWebsocketProvider {
   }
 
   async resubscribe() {
-    console.warn("Shutting down and restarting script to reconnect and resubscribe to topics...")
-    process.exit(1)
     console.log("Resubscribing to topics...");
     for (const subscription of this.subscriptions) {
       try {
