@@ -117,9 +117,16 @@ export class ResilientWebsocketProvider {
   }
 
   async resubscribe() {
+    console.warn("Shutting down and restarting script to reconnect and resubscribe to topics...")
+    process.exit(1)
     console.log("Resubscribing to topics...");
     for (const subscription of this.subscriptions) {
       try {
+        // NOTE: the subscribe function on the websocketprovides doesn't seem to exist. 
+        // We need to find a new way to make that happen. 
+        // I think this entire solution is a bit weird 
+        // and that we can write a much better solution. 
+        // TODO: Fix resubscribing to topics. 
         await this.provider._subscribe(subscription.type, subscription.filter, subscription.listener);
         console.log(`Resubscribed to ${subscription.type}`);
       } catch (error) {
