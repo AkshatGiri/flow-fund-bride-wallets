@@ -5,6 +5,7 @@ import { loadEnvVar } from "./utils/utils";
 import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
 
 const WS_RPC_URL = loadEnvVar("WS_RPC_URL");
+const RPC_URL = loadEnvVar("RPC_URL")
 const FUND_WALLET_PRIVATE_KEY = loadEnvVar("FUND_WALLET_PRIVATE_KEY");
 const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
 
@@ -19,7 +20,14 @@ const usdcContract = {
 
 const FUND_AMOUNT = ethers.parseEther("0.05");
 
+// websocket providers
 const providers = await createResilientProviders([WS_RPC_URL], usdcContract.chainId)
+
+// http providers ( mainly for sending transaction )
+const httpProvider = new ethers.JsonRpcProvider(RPC_URL, {
+  chainId: usdcContract.chainId,
+  name: "flow",
+});
 
 if (providers.length === 0) {
   throw new Error("Could not establish a resilient websocket provider connection.")
@@ -28,7 +36,7 @@ if (providers.length === 0) {
 const provider = providers[0];
 
 // Setup our wallet
-const fundWallet = new ethers.Wallet(FUND_WALLET_PRIVATE_KEY, provider);
+const fundWallet = new ethers.Wallet(FUND_WALLET_PRIVATE_KEY, httpProvider);
 
 // Create USDC.e contract instance
 const contract = new ethers.Contract(
