@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import usdcAbi from "./usdcAbi.json";
+import usdfAbi from "./usdfAbi.json";
 import "dotenv/config";
 import { loadEnvVar } from "./utils/utils";
 import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
@@ -12,20 +13,26 @@ const ADDRESS_0 = "0x0000000000000000000000000000000000000000"
 const FLOW_MAINNET = 747;
 const FLOW_TESTNET = 545;
 
-const usdcContract = {
+const usdcContractConfig = {
   address: "0x7f27352D5F83Db87a5A3E00f4B07Cc2138D8ee52" as `0x${string}`, // USDC.e address
   abi: usdcAbi,
   chainId: FLOW_MAINNET,
 };
 
+const usdfContractConfig = {
+  address: "0x2aaBea2058b5aC2D339b163C6Ab6f2b6d53aabED" as `0x${string}`,
+  abi: usdfAbi,
+  chainId: FLOW_MAINNET
+}
+
 const FUND_AMOUNT = ethers.parseEther("0.05");
 
 // websocket providers
-const providers = await createResilientProviders([WS_RPC_URL], usdcContract.chainId)
+const providers = await createResilientProviders([WS_RPC_URL], usdcContractConfig.chainId)
 
 // http providers ( mainly for sending transaction )
 const httpProvider = new ethers.JsonRpcProvider(RPC_URL, {
-  chainId: usdcContract.chainId,
+  chainId: usdcContractConfig.chainId,
   name: "flow",
 });
 
@@ -39,11 +46,17 @@ const provider = providers[0];
 const fundWallet = new ethers.Wallet(FUND_WALLET_PRIVATE_KEY, httpProvider);
 
 // Create USDC.e contract instance
-const contract = new ethers.Contract(
-  usdcContract.address,
-  usdcContract.abi,
+const usdcContract = new ethers.Contract(
+  usdcContractConfig.address,
+  usdcContractConfig.abi,
   provider
 );
+
+const usdfContract = new ethers.Contract(
+  usdfContractConfig.address,
+  usdfContractConfig.abi,
+  provider
+)
 
 // on transfer event handler
 async function onTransfer(from: string, to: string, amount: bigint, event: any) {
@@ -90,13 +103,15 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
 // Set up the event listener
 const startListening = () => {
   console.log("Listening for Transfer events...");
-  contract.on("Transfer", onTransfer);
+  usdcContract.on("Transfer", onTransfer);
+  usdfContract.on("Transfer", onTransfer);
 };
 
 // Function to stop listening
 const stopListening = () => {
   console.log("Stopped listening for Transfer events.");
-  contract.removeAllListeners("Transfer");
+  usdcContract.removeAllListeners("Transfer");
+  usdfContract.removeAllListeners("Transfer");
 };
 
 // catch all unhandled errors and log them
