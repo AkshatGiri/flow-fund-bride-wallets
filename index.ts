@@ -1,6 +1,7 @@
 import { ethers } from "ethers";
 import usdcAbi from "./usdcAbi.json";
 import usdfAbi from "./usdfAbi.json";
+import trumpAbi from "./trumpAbi.json";
 import "dotenv/config";
 import { loadEnvVar } from "./utils/utils";
 import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
@@ -22,6 +23,12 @@ const usdcContractConfig = {
 const usdfContractConfig = {
   address: "0x2aaBea2058b5aC2D339b163C6Ab6f2b6d53aabED" as `0x${string}`,
   abi: usdfAbi,
+  chainId: FLOW_MAINNET
+}
+
+const trumpContractConfig = {
+  address: "0xD3378b419feae4e3A4Bb4f3349DBa43a1B511760" as `0x${string}`,
+  abi: trumpAbi,
   chainId: FLOW_MAINNET
 }
 
@@ -55,6 +62,12 @@ const usdcContract = new ethers.Contract(
 const usdfContract = new ethers.Contract(
   usdfContractConfig.address,
   usdfContractConfig.abi,
+  provider
+)
+
+const trumpContract = new ethers.Contract(
+  trumpContractConfig.address,
+  trumpContractConfig.abi,
   provider
 )
 
@@ -105,6 +118,7 @@ const startListening = () => {
   console.log("Listening for Transfer events...");
   usdcContract.on("Transfer", onTransfer);
   usdfContract.on("Transfer", onTransfer);
+  trumpContract.on("Transfer", onTransfer);
 };
 
 // Function to stop listening
@@ -112,6 +126,7 @@ const stopListening = () => {
   console.log("Stopped listening for Transfer events.");
   usdcContract.removeAllListeners("Transfer");
   usdfContract.removeAllListeners("Transfer");
+  trumpContract.removeAllListeners("Transfer");
 };
 
 // catch all unhandled errors and log them
