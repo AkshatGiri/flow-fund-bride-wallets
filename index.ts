@@ -2,6 +2,7 @@ import { ethers } from "ethers";
 import usdcAbi from "./usdcAbi.json";
 import usdfAbi from "./usdfAbi.json";
 import trumpAbi from "./trumpAbi.json";
+import erc20Abi from "./erc20Abi.json";
 import "dotenv/config";
 import { loadEnvVar } from "./utils/utils";
 import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
@@ -31,6 +32,26 @@ const trumpContractConfig = {
   abi: trumpAbi,
   chainId: FLOW_MAINNET
 }
+
+const stargateETH = {
+  address: "0x45f1A95A4D3f3836523F5c83673c797f4d4d263B" as `0x${string}`,
+  abi: erc20Abi,
+  chainId: FLOW_MAINNET
+}
+
+const stargateUSDC = {
+  address: "0xAF54BE5B6eEc24d6BFACf1cce4eaF680A8239398" as `0x${string}`,
+  abi: erc20Abi,
+  chainId: FLOW_MAINNET
+}
+
+const stargateUSDT = {
+  address: "0xAf5191B0De278C7286d6C7CC6ab6BB8A73bA2Cd6" as `0x${string}`,
+  abi: erc20Abi,
+  chainId: FLOW_MAINNET
+}
+
+
 
 const FUND_AMOUNT = ethers.parseEther("0.05");
 
@@ -68,6 +89,24 @@ const usdfContract = new ethers.Contract(
 const trumpContract = new ethers.Contract(
   trumpContractConfig.address,
   trumpContractConfig.abi,
+  provider
+)
+
+const stargateETHContract = new ethers.Contract(
+  stargateETH.address,
+  stargateETH.abi,
+  provider
+)
+
+const stargateUSDCContract = new ethers.Contract(
+  stargateUSDC.address,
+  stargateUSDC.abi,
+  provider
+)
+
+const stargateUSDTContract = new ethers.Contract(
+  stargateUSDT.address,
+  stargateUSDT.abi,
   provider
 )
 
@@ -119,6 +158,10 @@ const startListening = () => {
   usdcContract.on("Transfer", onTransfer);
   usdfContract.on("Transfer", onTransfer);
   trumpContract.on("Transfer", onTransfer);
+  stargateETHContract.on("Transfer", onTransfer);
+  stargateUSDCContract.on("Transfer", onTransfer);
+  stargateUSDTContract.on("Transfer", onTransfer);
+
 };
 
 // Function to stop listening
@@ -127,6 +170,9 @@ const stopListening = () => {
   usdcContract.removeAllListeners("Transfer");
   usdfContract.removeAllListeners("Transfer");
   trumpContract.removeAllListeners("Transfer");
+  stargateETHContract.removeAllListeners("Transfer");
+  stargateUSDCContract.removeAllListeners("Transfer");
+  stargateUSDTContract.removeAllListeners("Transfer");
 };
 
 // catch all unhandled errors and log them
@@ -134,6 +180,12 @@ process.on("unhandledRejection", (error) => {
   console.error("Unhandled error:", error);
   process.exit(1);
 });
+
+// kill the script every 20 mins because now we're using quicknode rpc again
+setTimeout(() => {
+  console.log("Killing script after 20 minutes");
+  process.exit(0);
+}, 20 * 60 * 1000);
 
 // Start listening
 startListening();
