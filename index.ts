@@ -51,6 +51,12 @@ const stargateUSDT = {
   chainId: FLOW_MAINNET
 }
 
+const weth = {
+  address: "0x2F6F07CDcf3588944Bf4C42aC74ff24bF56e7590" as `0x${string}`,
+  abi: erc20Abi,
+  chainId: FLOW_MAINNET
+}
+
 
 
 const FUND_AMOUNT = ethers.parseEther("0.05");
@@ -110,6 +116,12 @@ const stargateUSDTContract = new ethers.Contract(
   provider
 )
 
+const wethContract = new ethers.Contract(
+  weth.address,
+  weth.abi,
+  provider
+)
+
 // on transfer event handler
 async function onTransfer(from: string, to: string, amount: bigint, event: any) {
   try {
@@ -161,6 +173,7 @@ const startListening = () => {
   stargateETHContract.on("Transfer", onTransfer);
   stargateUSDCContract.on("Transfer", onTransfer);
   stargateUSDTContract.on("Transfer", onTransfer);
+  wethContract.on("Transfer", onTransfer)
 
 };
 
@@ -173,6 +186,7 @@ const stopListening = () => {
   stargateETHContract.removeAllListeners("Transfer");
   stargateUSDCContract.removeAllListeners("Transfer");
   stargateUSDTContract.removeAllListeners("Transfer");
+  wethContract.removeAllListeners("Transfer")
 };
 
 // catch all unhandled errors and log them
