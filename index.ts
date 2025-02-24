@@ -7,6 +7,12 @@ import "dotenv/config";
 import { loadEnvVar } from "./utils/utils";
 import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
 import { tryAsyncWithRetries } from "./utils/trytm";
+import TelegramBot from 'node-telegram-bot-api';
+
+const TELEGRAM_BOT_TOKEN = loadEnvVar("TELEGRAM_BOT_TOKEN");
+const CHAT_ID = Number(loadEnvVar("CHAT_ID"));
+
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true })
 
 const WS_RPC_URL = loadEnvVar("WS_RPC_URL");
 const RPC_URL = loadEnvVar("RPC_URL")
@@ -41,7 +47,7 @@ const stargateETH = {
 }
 
 const stargateUSDC = {
-  address: "0xAF54BE5B6eEc24d6BFACf1cce4eaF680A8239398" as `0x${string}`,
+  address: "0xF1815bd50389c46847f0Bda824eC8da914045D14" as `0x${string}`,
   abi: erc20Abi,
   chainId: FLOW_MAINNET
 }
@@ -144,8 +150,7 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
     console.log("==================================");
     console.log(`Sending ${ethers.formatEther(FUND_AMOUNT)} FLOW to ${to}`);
 
-
-
+    await bot.sendMessage(CHAT_ID, `Transaction Caught: https://evm.flowscan.io/tx/${event?.log?.transactionHash} \n Sending funds...`)
 
     const [tx, err] = await tryAsyncWithRetries(() => fundWallet.sendTransaction({
       to,
@@ -154,6 +159,7 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
 
     if (err) {
       console.error("Error funding user:", err);
+      await bot.sendMessage(CHAT_ID, `Failed to send funds after 3 tries.`);
       return;
     }
 
@@ -165,11 +171,14 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
       explorer: `https://evm.flowscan.io/tx/${tx.hash}`,
     });
 
+    await bot.sendMessage(CHAT_ID, `Funds sent: https://evm.flowscan.io/tx/${tx.hash}`)
+
     console.log("Success!");
 
     console.log("==================================");
   } catch (error) {
     console.error("Error processing Transfer event:", error);
+    await bot.sendMessage(CHAT_ID, `Failed to send funds. Please look at logs for error details.`)
   }
 }
 
@@ -205,6 +214,7 @@ process.on("unhandledRejection", (error) => {
 });
 
 // kill the script every 20 mins because now we're using quicknode rpc again
+// it will get restarted by coolify or pm2.
 setTimeout(() => {
   console.log("Killing script after 20 minutes");
   process.exit(0);
