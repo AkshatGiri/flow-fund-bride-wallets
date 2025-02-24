@@ -6,6 +6,7 @@ import erc20Abi from "./erc20Abi.json";
 import "dotenv/config";
 import { loadEnvVar } from "./utils/utils";
 import { createResilientProviders } from "./utils/ResiliantWebsocketProvider";
+import { tryAsyncWithRetries } from "./utils/trytm";
 
 const WS_RPC_URL = loadEnvVar("WS_RPC_URL");
 const RPC_URL = loadEnvVar("RPC_URL")
@@ -143,10 +144,18 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
     console.log("==================================");
     console.log(`Sending ${ethers.formatEther(FUND_AMOUNT)} FLOW to ${to}`);
 
-    const tx = await fundWallet.sendTransaction({
+
+
+
+    const [tx, err] = await tryAsyncWithRetries(() => fundWallet.sendTransaction({
       to,
       value: ethers.parseEther("0.05"),
-    });
+    }), 3, 1000, true);
+
+    if (err) {
+      console.error("Error funding user:", err);
+      return;
+    }
 
     console.table({
       from,
