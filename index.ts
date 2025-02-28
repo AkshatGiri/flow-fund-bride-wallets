@@ -141,7 +141,7 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
     // check user flow balance.
     const toFlowBalance = await provider.getBalance(to, "latest");
 
-    if (toFlowBalance > ethers.parseEther("0.05")) {
+    if (toFlowBalance > FUND_AMOUNT) {
       // user already has enough, no need to fund it.
       return;
     }
@@ -154,7 +154,7 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
 
     const [tx, err] = await tryAsyncWithRetries(() => fundWallet.sendTransaction({
       to,
-      value: ethers.parseEther("0.05"),
+      value: FUND_AMOUNT,
     }), 3, 1000, true);
 
     if (err) {
