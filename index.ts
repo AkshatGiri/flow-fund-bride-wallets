@@ -141,7 +141,7 @@ async function onTransfer(from: string, to: string, amount: bigint, event: any) 
     // check user flow balance.
     const toFlowBalance = await provider.getBalance(to, "latest");
 
-    if (toFlowBalance > FUND_AMOUNT) {
+    if (toFlowBalance >= FUND_AMOUNT) {
       // user already has enough, no need to fund it.
       return;
     }
